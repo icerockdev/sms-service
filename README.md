@@ -1,4 +1,4 @@
-# Auth service
+# Sms service
 
 ## Installation
 ````kotlin
