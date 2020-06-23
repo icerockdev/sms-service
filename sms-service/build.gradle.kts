@@ -13,7 +13,7 @@ apply(plugin = "java")
 apply(plugin = "kotlin")
 
 group = "com.icerockdev.service"
-version = "0.0.1"
+version = "0.0.2"
 
 val sourcesJar by tasks.registering(Jar::class) {
     classifier = "sources"
@@ -29,7 +29,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:${properties["coroutines_version"]}")
 
     // Twilio
-    implementation("com.twilio.sdk:twilio:${properties["twilio_version"]}")
+    api("com.twilio.sdk:twilio:${properties["twilio_version"]}")
 
     // Ktor
     implementation("io.ktor:ktor-client-core:${properties["ktor_version"]}")
