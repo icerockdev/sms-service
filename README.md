@@ -8,7 +8,7 @@ repositories {
 }
 
 // Append dependency
-implementation("com.icerockdev.service:sms-service:0.0.2")
+implementation("com.icerockdev.service:sms-service:0.1.0")
 ````
 
 ## Library usage
