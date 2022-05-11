@@ -40,12 +40,10 @@ class Sms4bDriver(private val config: Sms4bConfig) : ISmsDriver {
 
     private fun handleResponse(xml: String) {
 
-        val response: Map<String, String> =
-            config.mapper.readValue(xml, object : TypeReference<Map<String, String>>() {})
-        val message = response[""] ?: ""
+        val response: String = config.mapper.readValue(xml, object : TypeReference<String>() {}) ?: ""
 
-        if (!message.matches(Regex("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\$"))) {
-            throw SmsException("Send sms failed with code: $message")
+        if (!response.matches(Regex("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\$"))) {
+            throw SmsException("Send sms failed with code: $response")
         }
     }
 }
