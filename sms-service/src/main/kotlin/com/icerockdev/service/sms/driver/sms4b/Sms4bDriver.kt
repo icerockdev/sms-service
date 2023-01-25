@@ -7,13 +7,14 @@ package com.icerockdev.service.sms.driver.sms4b
 import com.fasterxml.jackson.core.type.TypeReference
 import com.icerockdev.service.sms.SmsException
 import com.icerockdev.service.sms.driver.ISmsDriver
+import io.ktor.client.call.body
 import io.ktor.client.request.forms.FormDataContent
 import io.ktor.client.request.post
+import io.ktor.client.request.setBody
 import io.ktor.http.Parameters
 
 
 class Sms4bDriver(private val config: Sms4bConfig) : ISmsDriver {
-
     @Throws(SmsException::class)
     override suspend fun send(to: String, text: String): Boolean {
         val payload: Parameters = Parameters.build {
@@ -24,26 +25,29 @@ class Sms4bDriver(private val config: Sms4bConfig) : ISmsDriver {
             append("Text", text)
         }
 
-        val xml: String?
         try {
-            xml = config.client.post<String>(config.url) {
-                body = FormDataContent(payload)
+            val response = config.client.post(config.url) {
+                setBody(FormDataContent(payload))
             }
-
+            handleResponse(response.body())
+            return true
+        } catch (e: SmsException) {
+            throw e
         } catch (e: Throwable) {
-            throw SmsException("Send sms failed with code: $text", e)
+            throw SmsException("Send sms failed", e)
         }
-        handleResponse(xml)
-
-        return true
     }
 
     private fun handleResponse(xml: String) {
 
         val response: String = config.mapper.readValue(xml, object : TypeReference<String>() {}) ?: ""
 
-        if (!response.matches(Regex("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\$"))) {
+        if (!response.matches(Regex(SMS_ID_PATTERN))) {
             throw SmsException("Send sms failed with code: $response")
         }
+    }
+
+    companion object {
+        const val SMS_ID_PATTERN = "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\$"
     }
 }
