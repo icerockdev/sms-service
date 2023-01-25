@@ -10,7 +10,11 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.request.forms.FormDataContent
-import io.ktor.http.*
+import io.ktor.http.ContentType
+import io.ktor.http.Url
+import io.ktor.http.fullPath
+import io.ktor.http.headersOf
+import io.ktor.http.hostWithPort
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -28,7 +32,8 @@ class Sms4bTest {
     private val Url.hostWithPortIfRequired: String get() = if (port == protocol.defaultPort) host else hostWithPort
     private val Url.fullUrl: String get() = "${protocol.name}://$hostWithPortIfRequired$fullPath"
 
-    private val successResponse = "<?xml version=\"1.0\" encoding=\"utf-8\"?><string xmlns =\"SMS4B\">7CF4AC03-9E8F-37BD-4100-AB52004B004B</string>"
+    private val successResponse = "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
+            "<string xmlns =\"SMS4B\">7CF4AC03-9E8F-37BD-4100-AB52004B004B</string>"
     private val successPhone = "+79139999999"
     private val errorResponse = "<?xml version=\"1.0\" encoding=\"utf-8\"?><string xmlns =\"SMS4B\">-51</string>"
 
@@ -69,6 +74,7 @@ class Sms4bTest {
                             headers = responseHeaders
                         )
                     }
+
                     else -> error("Unhandled ${request.url.fullUrl}")
                 }
             }

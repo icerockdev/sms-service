@@ -16,7 +16,7 @@ apply(plugin = "java")
 apply(plugin = "kotlin")
 
 group = "com.icerockdev.service"
-version = "0.2.0"
+version = "1.0.0"
 
 val sourcesJar by tasks.registering(Jar::class) {
     archiveClassifier.set("sources")
@@ -35,8 +35,16 @@ dependencies {
     implementation("io.ktor:ktor-client-apache:${properties["ktor_version"]}")
 
     // Xml support
-    implementation(group = "com.fasterxml.jackson.dataformat", name = "jackson-dataformat-xml", version = "${properties["jackson_version"]}")
-    implementation(group = "com.fasterxml.jackson.module", name = "jackson-module-kotlin", version = "${properties["jackson_version"]}")
+    implementation(
+        group = "com.fasterxml.jackson.dataformat",
+        name = "jackson-dataformat-xml",
+        version = "${properties["jackson_version"]}"
+    )
+    implementation(
+        group = "com.fasterxml.jackson.module",
+        name = "jackson-module-kotlin",
+        version = "${properties["jackson_version"]}"
+    )
 
     // tests
     testImplementation("io.ktor:ktor-server-tests:${properties["ktor_version"]}")
@@ -112,6 +120,7 @@ publishing {
         }
 
         signing {
+            setRequired({!properties.containsKey("libraryPublishToMavenLocal")})
             val signingKeyId: String? = System.getenv("SIGNING_KEY_ID")
             val signingPassword: String? = System.getenv("SIGNING_PASSWORD")
             val signingKey: String? = System.getenv("SIGNING_KEY")?.let { base64Key ->

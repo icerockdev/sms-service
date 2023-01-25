@@ -29,7 +29,7 @@ include(":sms-service")
 
 val properties = startParameter.projectProperties
 
-// ./gradlew -PlibraryPublish publishToMavenLocal
+// ./gradlew -PlibraryPublish -PlibraryPublishToMavenLocal publishToMavenLocal
 // ./gradlew :sms-service:publish -PlibraryPublish
 val libraryPublish: Boolean = properties.containsKey("libraryPublish")
 if(!libraryPublish) {
