@@ -1,8 +1,9 @@
-import java.util.Base64
-import kotlin.text.String
 /*
  * Copyright 2020 IceRock MAG Inc. Use of this source code is governed by the Apache 2.0 license.
  */
+import java.util.Base64
+import kotlin.text.String
+import org.jreleaser.model.Active
 
 plugins {
     id("org.jetbrains.kotlin.jvm")
@@ -10,13 +11,14 @@ plugins {
     id("maven-publish")
     id("java-library")
     id("signing")
+    id("org.jreleaser") version "1.18.0"
 }
 
 apply(plugin = "java")
 apply(plugin = "kotlin")
 
 group = "com.icerockdev.service"
-version = "1.0.0"
+version = "1.1.0"
 
 val sourcesJar by tasks.registering(Jar::class) {
     archiveClassifier.set("sources")
@@ -68,15 +70,9 @@ repositories {
     mavenCentral()
 }
 
+val publishRepositoryName = "maven-central-portal-deploy"
 publishing {
-    repositories.maven("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/") {
-        name = "OSSRH"
-
-        credentials {
-            username = System.getenv("OSSRH_USER")
-            password = System.getenv("OSSRH_KEY")
-        }
-    }
+    repositories.maven(layout.buildDirectory.dir(publishRepositoryName))
     publications {
         register("mavenJava", MavenPublication::class) {
             from(components["java"])
@@ -128,6 +124,36 @@ publishing {
             }
             useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
             sign(publishing.publications["mavenJava"])
+        }
+    }
+}
+
+jreleaser {
+    gitRootSearch = true
+    release {
+        generic {
+            skipRelease = true
+            skipTag = true
+            changelog {
+                enabled = false
+            }
+            token = "EMPTY"
+        }
+    }
+    deploy {
+        maven {
+            mavenCentral.create("sonatype") {
+                enabled = !properties.containsKey("libraryPublishToMavenLocal")
+                applyMavenCentralRules = true
+                sign = false
+                active = Active.ALWAYS
+                url = "https://central.sonatype.com/api/v1/publisher"
+                stagingRepository(layout.buildDirectory.dir(publishRepositoryName).get().toString())
+                setAuthorization("Basic")
+                retryDelay = 60
+                username = System.getenv("OSSRH_USER")
+                password = System.getenv("OSSRH_KEY")
+            }
         }
     }
 }
