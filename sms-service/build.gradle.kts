@@ -18,7 +18,7 @@ apply(plugin = "java")
 apply(plugin = "kotlin")
 
 group = "com.icerockdev.service"
-version = "1.1.0"
+version = "1.2.0"
 
 val sourcesJar by tasks.registering(Jar::class) {
     archiveClassifier.set("sources")
@@ -33,8 +33,8 @@ dependencies {
     api("com.twilio.sdk:twilio:${properties["twilio_version"]}")
 
     // Ktor
-    implementation("io.ktor:ktor-client-core:${properties["ktor_version"]}")
-    implementation("io.ktor:ktor-client-apache:${properties["ktor_version"]}")
+    api("io.ktor:ktor-client-core:${properties["ktor_version"]}")
+    api("io.ktor:ktor-client-apache:${properties["ktor_version"]}")
 
     // Xml support
     implementation(
